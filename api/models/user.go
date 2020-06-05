@@ -75,6 +75,9 @@ func (user *User) Validate(action string) error {
 		if user.Password == "" {
 			return errors.New("Required Password")
 		}
+		if passwordLength := len([]rune(user.Password)); passwordLength < 6 {
+			return errors.New("Password minimum is 6 characters")
+		}
 		return nil
 	case "update":
 		if user.Name == "" {
