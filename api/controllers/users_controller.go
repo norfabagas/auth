@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/norfabagas/auth/api/auth"
@@ -39,7 +40,15 @@ func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Location", fmt.Sprintf("%s/%s/%d", r.Host, r.RequestURI, userCreated.ID))
-	responses.JSON(w, http.StatusCreated, userCreated)
+	responses.JSON(w, http.StatusCreated, struct {
+		Name      string    `json:"name"`
+		Email     string    `json:"email"`
+		CreatedAt time.Time `json:"created_at"`
+	}{
+		Name:      userCreated.Name,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+	})
 }
 
 func (server *Server) GetUser(w http.ResponseWriter, r *http.Request) {
