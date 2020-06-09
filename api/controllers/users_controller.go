@@ -40,7 +40,7 @@ func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Location", fmt.Sprintf("%s/%s/%d", r.Host, r.RequestURI, userCreated.ID))
-	responses.JSON(w, http.StatusCreated, struct {
+	responses.JSON(w, http.StatusCreated, true, http.StatusText(http.StatusCreated), struct {
 		Name      string    `json:"name"`
 		Email     string    `json:"email"`
 		CreatedAt time.Time `json:"created_at"`
@@ -64,7 +64,7 @@ func (server *Server) GetUser(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-	responses.JSON(w, http.StatusOK, userData)
+	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), userData)
 }
 
 func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +106,7 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusInternalServerError, formattedError)
 		return
 	}
-	responses.JSON(w, http.StatusOK, updatedUser)
+	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), updatedUser)
 }
 
 func (server *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -132,5 +132,5 @@ func (server *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Entity", fmt.Sprintf("%d", id))
-	responses.JSON(w, http.StatusNoContent, "")
+	responses.JSON(w, http.StatusNoContent, true, http.StatusText(http.StatusNoContent), "")
 }

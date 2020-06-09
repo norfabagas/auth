@@ -53,5 +53,5 @@ func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnprocessableEntity, formattedError)
 		return
 	}
-	responses.JSON(w, http.StatusOK, token)
+	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), token)
 }
