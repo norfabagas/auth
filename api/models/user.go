@@ -3,11 +3,13 @@ package models
 import (
 	"errors"
 	"html"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/badoux/checkmail"
 	"github.com/jinzhu/gorm"
+	"github.com/norfabagas/auth/api/utils/crypto"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -90,10 +92,16 @@ func (user *User) Validate(action string) error {
 }
 
 func (user *User) SaveUser(db *gorm.DB) (*User, error) {
-	err := db.Debug().Create(&user).Error
+	var err error
+
+	user.Name, err = crypto.Encrypt(user.Name, os.Getenv("APP_KEY"))
+
+	err = db.Debug().Create(&user).Error
 	if err != nil {
 		return &User{}, err
 	}
+
+	user.Name, _ = crypto.Decrypt(user.Name, os.Getenv("APP_KEY"))
 	return user, nil
 }
 

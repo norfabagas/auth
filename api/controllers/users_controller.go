@@ -46,8 +46,8 @@ func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
 		CreatedAt time.Time `json:"created_at"`
 	}{
 		Name:      userCreated.Name,
-		Email:     user.Email,
-		CreatedAt: user.CreatedAt,
+		Email:     userCreated.Email,
+		CreatedAt: userCreated.CreatedAt,
 	})
 }
 
