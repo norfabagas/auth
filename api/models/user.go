@@ -136,6 +136,12 @@ func (user *User) UpdateUser(db *gorm.DB, id uint32) (*User, error) {
 	if err != nil {
 		return &User{}, err
 	}
+
+	user.Name, err = crypto.Decrypt(user.Name, os.Getenv("APP_KEY"))
+	if err != nil {
+		return &User{}, err
+	}
+
 	return user, nil
 }
 

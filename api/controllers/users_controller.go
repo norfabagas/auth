@@ -109,12 +109,6 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedUser.Name, err = crypto.Decrypt(updatedUser.Name, os.Getenv("APP_KEY"))
-	if err != nil {
-		responses.ERROR(w, http.StatusInternalServerError, err)
-		return
-	}
-
 	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), updatedUser)
 }
 
