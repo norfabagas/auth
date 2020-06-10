@@ -11,12 +11,18 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/norfabagas/auth/api/utils/crypto"
 )
 
 func CreateToken(userId uint32) (string, error) {
+	encryptedID, err := crypto.Encrypt(strconv.FormatInt(int64(userId), 10), os.Getenv("APP_KEY"))
+	if err != nil {
+		return "", err
+	}
+
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
-	claims["user_id"] = userId
+	claims["user_id"] = encryptedID
 	claims["exp"] = time.Now().Add(time.Hour * 2).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(os.Getenv("API_SECRET")))
@@ -48,10 +54,18 @@ func ExtractTokenID(r *http.Request) (uint32, error) {
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
-		id, err := strconv.ParseUint(fmt.Sprintf("%.0f", claims["user_id"]), 10, 32)
+		encryptedID := fmt.Sprintf("%s", claims["user_id"])
+		decryptedID, err := crypto.Decrypt(encryptedID, os.Getenv("APP_KEY"))
+		// encryptedID, err := strconv.ParseUint(fmt.Sprintf("%.0f", claims["user_id"]), 10, 32)
 		if err != nil {
 			return 0, err
 		}
+
+		id, err := strconv.Atoi(decryptedID)
+		if err != nil {
+			return 0, err
+		}
+
 		return uint32(id), nil
 	}
 	return 0, nil
