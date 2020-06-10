@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/norfabagas/auth/api/auth"
 	"github.com/norfabagas/auth/api/models"
 	"github.com/norfabagas/auth/api/responses"
+	"github.com/norfabagas/auth/api/utils/crypto"
 	"github.com/norfabagas/auth/api/utils/formaterror"
 )
 
@@ -52,18 +54,26 @@ func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *Server) GetUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.ParseUint(vars["id"], 10, 32)
+	tokenID, err := auth.ExtractTokenID(r)
 	if err != nil {
-		responses.ERROR(w, http.StatusBadRequest, err)
+		responses.ERROR(w, http.StatusUnauthorized, err)
 		return
 	}
+
 	user := models.User{}
-	userData, err := user.FindUserByID(server.DB, uint32(id))
+	userData, err := user.FindUserByID(server.DB, uint32(tokenID))
 	if err != nil {
 		responses.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
+
+	userData.Name, err = crypto.Decrypt(userData.Name, os.Getenv("APP_KEY"))
+	if err != nil {
+		fmt.Println(userData.Name)
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), userData)
 }
 
