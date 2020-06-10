@@ -72,7 +72,17 @@ func (server *Server) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), userData)
+	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), struct {
+		Name      string    `json:"name"`
+		Email     string    `json:"email"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"last_updated"`
+	}{
+		Name:      userData.Name,
+		Email:     userData.Email,
+		CreatedAt: userData.CreatedAt,
+		UpdatedAt: userData.UpdatedAt,
+	})
 }
 
 func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +117,17 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), updatedUser)
+	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), struct {
+		Name      string    `json:"name"`
+		Email     string    `json:"email"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"last_updated"`
+	}{
+		Name:      updatedUser.Name,
+		Email:     updatedUser.Email,
+		CreatedAt: updatedUser.CreatedAt,
+		UpdatedAt: updatedUser.UpdatedAt,
+	})
 }
 
 func (server *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
