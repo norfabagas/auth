@@ -117,9 +117,14 @@ func (user *User) FindUserByID(db *gorm.DB, id uint32) (*User, error) {
 }
 
 func (user *User) UpdateUser(db *gorm.DB, id uint32) (*User, error) {
+	encryptedName, err := crypto.Encrypt(user.Name, os.Getenv("APP_KEY"))
+	if err != nil {
+		return &User{}, err
+	}
+
 	db = db.Debug().Model(&User{}).Where("id = ?", id).UpdateColumns(
 		map[string]interface{}{
-			"name":       user.Name,
+			"name":       encryptedName,
 			"updated_at": user.UpdatedAt,
 		},
 	)
@@ -127,7 +132,7 @@ func (user *User) UpdateUser(db *gorm.DB, id uint32) (*User, error) {
 		return &User{}, db.Error
 	}
 
-	err := db.Debug().Model(&User{}).Where("id = ?", id).Take(&user).Error
+	err = db.Debug().Model(&User{}).Where("id = ?", id).Take(&user).Error
 	if err != nil {
 		return &User{}, err
 	}

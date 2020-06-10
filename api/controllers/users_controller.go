@@ -78,12 +78,6 @@ func (server *Server) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.ParseUint(vars["id"], 10, 32)
-	if err != nil {
-		responses.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
@@ -100,22 +94,27 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return
 	}
-	if tokenID != uint32(id) {
-		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-		return
-	}
+
 	user.Prepare()
 	err = user.Validate("update")
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	updatedUser, err := user.UpdateUser(server.DB, uint32(id))
+
+	updatedUser, err := user.UpdateUser(server.DB, uint32(tokenID))
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		responses.ERROR(w, http.StatusInternalServerError, formattedError)
 		return
 	}
+
+	updatedUser.Name, err = crypto.Decrypt(updatedUser.Name, os.Getenv("APP_KEY"))
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), updatedUser)
 }
 
