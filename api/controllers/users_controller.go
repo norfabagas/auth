@@ -7,10 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/norfabagas/auth/api/auth"
 	"github.com/norfabagas/auth/api/models"
 	"github.com/norfabagas/auth/api/responses"
@@ -113,27 +111,21 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
 	user := models.User{}
 
-	id, err := strconv.ParseUint(vars["id"], 10, 32)
-	if err != nil {
-		responses.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
 	tokenID, err := auth.ExtractTokenID(r)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return
 	}
-	if tokenID != 0 && tokenID != uint32(id) {
+	if tokenID != 0 && tokenID != uint32(tokenID) {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 	}
-	_, err = user.DeleteUser(server.DB, uint32(id))
+	_, err = user.DeleteUser(server.DB, uint32(tokenID))
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-	w.Header().Set("Entity", fmt.Sprintf("%d", id))
-	responses.JSON(w, http.StatusNoContent, true, http.StatusText(http.StatusNoContent), "")
+
+	responses.JSON(w, http.StatusOK, true, "Deleted", "")
 }
