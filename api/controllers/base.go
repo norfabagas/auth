@@ -25,7 +25,7 @@ func (server *Server) Initialize(DBDriver, DBUser, DBPassword, DBPort, DBHost, D
 			fmt.Printf("Cannot connect to %s database", DBDriver)
 			log.Fatal("Error: ", err)
 		} else {
-			fmt.Printf("Connected to database %s database", DBDriver)
+			fmt.Printf("Connected to database %s\n", DBName)
 		}
 	}
 	server.DB.Debug().AutoMigrate(&models.User{})
@@ -35,6 +35,6 @@ func (server *Server) Initialize(DBDriver, DBUser, DBPassword, DBPort, DBHost, D
 }
 
 func (server *Server) Run(addr string) {
-	fmt.Println("Listening to port 8080")
+	fmt.Printf("Listening to address: %s\n", addr)
 	log.Fatal(http.ListenAndServe(addr, server.Router))
 }
