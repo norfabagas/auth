@@ -22,5 +22,5 @@ func Run() {
 		log.Fatalf("APP_KEY is not 32 bit long")
 	}
 
-	server.Run(":" + os.Getenv("SERVER_PORT"))
+	server.Run(":" + os.Getenv("PORT"))
 }
