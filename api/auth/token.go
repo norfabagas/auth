@@ -14,15 +14,10 @@ import (
 	"github.com/norfabagas/auth/api/utils/crypto"
 )
 
-func CreateToken(userId uint32) (string, error) {
-	encryptedID, err := crypto.Encrypt(strconv.FormatInt(int64(userId), 10), os.Getenv("APP_KEY"))
-	if err != nil {
-		return "", err
-	}
-
+func CreateToken(userPublicID string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
-	claims["user_id"] = encryptedID
+	claims["user_id"] = userPublicID
 	claims["exp"] = time.Now().Add(time.Hour * 2).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(os.Getenv("API_SECRET")))
