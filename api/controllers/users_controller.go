@@ -43,10 +43,12 @@ func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusCreated, true, http.StatusText(http.StatusCreated), struct {
 		Name      string    `json:"name"`
 		Email     string    `json:"email"`
+		PublicID  string    `json:"public_id"`
 		CreatedAt time.Time `json:"created_at"`
 	}{
 		Name:      userCreated.Name,
 		Email:     userCreated.Email,
+		PublicID:  userCreated.PublicID,
 		CreatedAt: userCreated.CreatedAt,
 	})
 }

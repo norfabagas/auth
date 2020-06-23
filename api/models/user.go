@@ -1,12 +1,9 @@
 package models
 
 import (
-	"crypto/md5"
 	"errors"
-	"fmt"
 	"html"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -103,10 +100,7 @@ func (user *User) SaveUser(db *gorm.DB) (*User, error) {
 		return &User{}, err
 	}
 
-	stringID := strconv.FormatUint(uint64(user.ID), 10)
-	publicID := md5.Sum([]byte(stringID))
-
-	user.PublicID = fmt.Sprintf("%s", publicID)
+	user.PublicID = crypto.MD5Hash(user.Email + user.CreatedAt.String())
 
 	err = db.Debug().Create(&user).Error
 	if err != nil {
