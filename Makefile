@@ -1,27 +1,14 @@
-PID = ./bin/auth.pid
-GO_FILES = $(wildcard *.go)
-APP = ./bin/auth
+DB_URL=${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable
 
-serve: start
-	@fswatch -x -o --event Created --event Updated --event Renamed -r -e '.*' -i '\.go$$'  . | xargs -n1 -I{}  make restart || make kill
-
-kill:
-	@kill `cat $(PID)` || true
-
-before:
-	@echo "actually do nothing"
-
-build: $(GO_FILES)
-	@go build -o $(APP)
-
-$(APP): $(GO_FILES)
-	@go build $? -o $@
-
-start:
-	@sh -c "$(APP) & echo $$! > $(PID)"
-	@export $(cat .env | xargs)
-	@./bin/auth & echo $$! > $(PID)
-
-restart: kill before build start
-
-.PHONY: start serve restart kill before # let's go to reserve rules names
+build:
+	@go build -o bin/auth -v
+run:
+	@export $(cat .env | xargs) && ./bin/auth
+migrate:
+	@migrate --path=db/migrations --database=${DB_URL} up
+drop:
+	@migrate --path=db/migrations --database=${DB_URL} down
+clean:
+	@go clean -o bin/auth
+vendor:
+	@go mod vendor
