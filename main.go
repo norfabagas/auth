@@ -1,6 +1,8 @@
 package main
 
-import "github.com/norfabagas/auth/api"
+import (
+	"github.com/norfabagas/auth/api"
+)
 
 func main() {
 	api.Run()

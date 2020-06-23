@@ -56,7 +56,6 @@ func ExtractTokenID(r *http.Request) (uint32, error) {
 	if ok && token.Valid {
 		encryptedID := fmt.Sprintf("%s", claims["user_id"])
 		decryptedID, err := crypto.Decrypt(encryptedID, os.Getenv("APP_KEY"))
-		// encryptedID, err := strconv.ParseUint(fmt.Sprintf("%.0f", claims["user_id"]), 10, 32)
 		if err != nil {
 			return 0, err
 		}

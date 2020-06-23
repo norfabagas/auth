@@ -8,7 +8,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/norfabagas/auth/api/models"
 )
 
 type Server struct {
@@ -18,17 +17,18 @@ type Server struct {
 
 func (server *Server) Initialize(DBDriver, DBUser, DBPassword, DBPort, DBHost, DBName string) {
 	var err error
+
 	if DBDriver == "postgres" {
 		DBURL := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s", DBHost, DBPort, DBUser, DBName, DBPassword)
 		server.DB, err = gorm.Open(DBDriver, DBURL)
 		if err != nil {
-			fmt.Printf("Cannot connect to %s database", DBDriver)
+			fmt.Printf("Cannot connect to %s database ", DBName)
 			log.Fatal("Error: ", err)
 		} else {
 			fmt.Printf("Connected to database %s\n", DBName)
 		}
 	}
-	server.DB.Debug().AutoMigrate(&models.User{})
+
 	server.Router = mux.NewRouter()
 
 	server.InitializeRoutes()

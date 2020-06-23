@@ -1,9 +1,12 @@
 package models
 
 import (
+	"crypto/md5"
 	"errors"
+	"fmt"
 	"html"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,6 +18,7 @@ import (
 
 type User struct {
 	ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
+	PublicID  string    `gorm:"size:255;not null;unique" json:"public_id"`
 	Name      string    `gorm:"size:255;not null;unique" json:"name"`
 	Email     string    `gorm:"size:255;not null;unique" json:"email"`
 	Password  string    `gorm:"size:255;not null"`
@@ -95,6 +99,14 @@ func (user *User) SaveUser(db *gorm.DB) (*User, error) {
 	var err error
 
 	user.Name, err = crypto.Encrypt(user.Name, os.Getenv("APP_KEY"))
+	if err != nil {
+		return &User{}, err
+	}
+
+	stringID := strconv.FormatUint(uint64(user.ID), 10)
+	publicID := md5.Sum([]byte(stringID))
+
+	user.PublicID = fmt.Sprintf("%s", publicID)
 
 	err = db.Debug().Create(&user).Error
 	if err != nil {
