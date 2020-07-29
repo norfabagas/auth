@@ -16,7 +16,7 @@ func FormatError(err string) error {
 		return errors.New("Email Already Taken")
 	}
 	if strings.Contains(err, "hashedPassword") {
-		return errors.New("Incorrect Password")
+		return errors.New("Incorrect Email or Password")
 	}
 	return errors.New("Incorrect Details")
 }
